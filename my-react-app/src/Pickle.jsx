@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useDispatch } from 'react-redux';
+import { incrementCart } from './store/cartSlice';
 
 function Pickle() {
   const [pickles, setPickles] = useState([]);
   const [popupMessage, setPopupMessage] = useState("");
+  const [isHiding, setIsHiding] = useState(false);
+  const dispatch = useDispatch();
   
   let baseURL = "http://localhost:4000";
   useEffect(() => {
@@ -36,8 +40,18 @@ function Pickle() {
       .post(`${baseURL}/addtocart`, cartItem)
       .then((response) => {
         console.log("Cart updated:", response.data);
+        dispatch(incrementCart());
+        setIsHiding(false);
         setPopupMessage(`${item1.name} added to cart!`);
-        setTimeout(() => setPopupMessage(""), 3000);
+
+        // After 2.5s, trigger slide-out, then remove after animation (400ms)
+        setTimeout(() => {
+          setIsHiding(true);
+          setTimeout(() => {
+            setPopupMessage("");
+            setIsHiding(false);
+          }, 400);
+        }, 2500);
       })
       .catch((error) => {
         console.error("Error updating cart:", error);
@@ -77,7 +91,7 @@ function Pickle() {
       </div>
 
       {popupMessage && (
-        <div className="status-toast">
+        <div className={`status-toast ${isHiding ? 'hiding' : ''}`}>
           <span>✅</span> {popupMessage}
         </div>
       )}

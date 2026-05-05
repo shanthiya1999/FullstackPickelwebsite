@@ -172,3 +172,48 @@ app.get("/orders/:email", (req, res) => {
       res.status(500).send("Error fetching orders");
     });
 });
+
+app.get("/allorders", (req, res) => {
+  db.collection("orders").find().sort({ createdAt: -1 }).toArray()
+    .then((orders) => {
+      if (orders.length > 0) {
+        console.log("First order ID type:", typeof orders[0]._id);
+        console.log("First order sample:", JSON.stringify(orders[0]));
+      }
+      res.status(200).json(orders);
+    })
+    .catch((err) => {
+      console.error("Error fetching all orders:", err);
+      res.status(500).send("Error fetching orders");
+    });
+});
+
+app.post("/addproduct", (req, res) => {
+  const product = req.body;
+  db.collection("pickle").insertOne(product)
+    .then(() => {
+      res.status(200).send("Product added successfully");
+    })
+    .catch((err) => {
+      console.error("Error adding product:", err);
+      res.status(500).send("Error adding product");
+    });
+});
+
+app.patch("/updateorderstatus/:id", (req, res) => {
+  const id = req.params.id;
+  const { status } = req.body;
+  console.log(`Updating order ${id} status to ${status}`);
+  db.collection("orders").updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { status: status } }
+  )
+  .then(() => {
+    console.log("Status updated successfully");
+    res.send("Status updated");
+  })
+  .catch(err => {
+    console.error("Error updating status:", err);
+    res.status(500).send("Error updating status");
+  });
+});

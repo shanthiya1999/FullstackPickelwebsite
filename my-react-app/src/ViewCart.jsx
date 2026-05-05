@@ -1,9 +1,12 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux';
+import { setCartCount, decrementCart, resetCart } from './store/cartSlice';
 
 function ViewCart() {
     const [cartItems, setCartItems] = useState([]);
     const [showBilling, setShowBilling] = useState(false);
+    const dispatch = useDispatch();
     let baseURL = "http://localhost:4000";
     useEffect(()=>{
         const storedUser = localStorage.getItem("user");
@@ -17,17 +20,23 @@ function ViewCart() {
         .then((response)=>{
             console.log("Cart items:", response.data);
             setCartItems(response.data);
+            // Sync total quantity to Redux store
+            const totalQty = response.data.reduce((acc, item) => acc + (item.quan || 1), 0);
+            dispatch(setCartCount(totalQty));
         })
         .catch((error)=>{
             console.error("Error fetching cart items:", error);
         })
     },[]);
     function delete1(id){
+        const itemToDelete = cartItems.find(item => item._id === id);
         console.log("Deleting item with id:", id);
         axios.delete(`${baseURL}/deletecart/${id}`)
         .then((response)=>{
             console.log("Item deleted:", response.data);
             setCartItems(cartItems.filter(item => item._id !== id));
+            // Decrement by the quantity of the deleted item
+            dispatch(decrementCart(itemToDelete?.quan || 1));
         })
         .catch((error)=>{
             console.error("Error deleting item:", error);
@@ -75,6 +84,7 @@ function ViewCart() {
           alert("Order placed successfully!");
           setCartItems([]);
           setShowBilling(false);
+          dispatch(resetCart()); // Reset cart count after order
         })
         .catch((err) => {
           console.error("Error placing order:", err);

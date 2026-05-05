@@ -12,6 +12,7 @@ function Register() {
     address: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
 
   const handleChange = (e) => {
@@ -64,7 +65,24 @@ function Register() {
           
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input type="password" name="password" className="form-input" placeholder="Password" value={formData.password} onChange={handleChange} required />
+            <div className="password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} 
+                name="password" 
+                className="form-input" 
+                placeholder="Password" 
+                value={formData.password} 
+                onChange={handleChange} 
+                required 
+              />
+              <button 
+                type="button" 
+                className="password-toggle"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "👁️" : "🙈"}
+              </button>
+            </div>
           </div>
           
           <div className="form-group">

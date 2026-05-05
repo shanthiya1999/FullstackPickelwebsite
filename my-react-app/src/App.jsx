@@ -13,6 +13,7 @@ import About from './About'
 import Login from './Login'
 import Register from './Register'
 import Account from './Account'
+import AdminDashboard from './AdminDashboard'
 function App() {
   
 
@@ -31,6 +32,7 @@ function App() {
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
       <Route path='/account' element={<Account />} />
+      <Route path='/admin' element={<AdminDashboard />} />
     </Routes>
     </>
   )
